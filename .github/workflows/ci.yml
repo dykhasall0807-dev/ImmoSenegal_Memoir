@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (compilation + tests)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: immosenegal_test
+          POSTGRES_USER: immosenegal
+          # Mot de passe jetable, valable uniquement pour ce conteneur de test.
+          POSTGRES_PASSWORD: ci_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U immosenegal -d immosenegal_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/immosenegal_test
+      DB_USER: immosenegal
+      DB_PASSWORD: ci_test_password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Compiler et lancer les tests
+        working-directory: backend
+        run: mvn -B verify
+      - name: Publier les rapports de tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapports-tests-backend
+          path: backend/target/surefire-reports
