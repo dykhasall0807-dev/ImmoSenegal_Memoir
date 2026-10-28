@@ -10,8 +10,9 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 | Élément | État |
 |---|---|
 | Squelette backend (sécurité, CORS, Swagger, Flyway, `/api/health`) | **Vérifié par la CI** (compilation + 3 tests, le 28/10/2026) |
-| Authentification JWT (inscription CLIENT, connexion, profil), rôles, premier ADMIN, demandes de rôle validées par ADMIN, journal d'audit | **Vérifié par la CI** (25 tests backend, 0 échec, le 28/10/2026) |
-| Limitation des tentatives de connexion, renouvellement du jeton (cookie HttpOnly), mot de passe oublié | À faire |
+| Authentification JWT (inscription CLIENT, connexion, profil), rôles, premier ADMIN, demandes de rôle validées par ADMIN, journal d'audit | **Vérifié par la CI** (36 tests backend, 0 échec, le 28/10/2026) |
+| Limitation des tentatives de connexion (5 échecs/email, 20/IP, 15 min → 429 + Retry-After) | **Vérifié par la CI** |
+| Renouvellement du jeton (cookie HttpOnly), déconnexion côté serveur, mot de passe oublié | À faire |
 | Annonces, visites, offres, paiements simulés, messagerie, assistant, vérification des annonces | À faire |
 | Frontend : projet de base, accueil (recherche), catalogue provisoire, page 404 | **Vérifié par la CI** (compilation + 6 tests, le 28/10/2026) |
 | Frontend : connexion, inscription, catalogue réel, détail, tableau de bord, carte | À faire |
@@ -85,5 +86,7 @@ Les tests démarrent l'application complète : la base PostgreSQL doit être lan
 - **Erreur Flyway « validate failed »** : ne jamais modifier une migration déjà appliquée ; en créer une nouvelle (`V2__...sql`).
 
 ## Sécurité
+
+**Limites connues de la limitation de connexion :** les compteurs sont gardés en mémoire (un seul serveur ; ils sont remis à zéro au redémarrage). Un attaquant peut bloquer temporairement (15 min) la connexion à un compte en multipliant les échecs sur son email : c'est le compromis accepté contre la devinette de mots de passe. Derrière un proxy (Render), définir `FORWARD_HEADERS_STRATEGY=native`, sinon toutes les requêtes semblent venir de la même IP.
 
 Aucun secret n'est stocké dans le code ni dans Git : tout passe par les variables d'environnement. Le fichier `.env` est ignoré par Git.
