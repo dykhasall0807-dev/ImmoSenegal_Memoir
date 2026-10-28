@@ -15,22 +15,27 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import sn.immosenegal.security.JwtAuthenticationFilter;
+import sn.immosenegal.security.JwtService;
+import sn.immosenegal.user.UserRepository;
+
 /**
  * Configuration de sécurité de base : API sans session (stateless), CORS limité aux origines
  * configurées, tout est protégé sauf la santé de l'API et la documentation Swagger.
- * Le filtre JWT et les règles par rôle seront ajoutés à l'étape « authentification ».
+ * Le filtre JWT reconstruit l'utilisateur depuis la base ; les routes /api/admin/** exigent le rôle ADMIN.
  */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, JwtService jwtService, UserRepository users) throws Exception {
         http
             // Pas de cookies de session : l'authentification se fera par jeton, donc CSRF inutile.
             .csrf(csrf -> csrf.disable())
@@ -38,8 +43,12 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                // Zone réservée aux administrateurs : le rôle vient de la base, jamais du client.
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated())
+            .addFilterBefore(new JwtAuthenticationFilter(jwtService, users), UsernamePasswordAuthenticationFilter.class)
             // 401 pour une requête non authentifiée (et non une redirection vers un formulaire).
             .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
         return http.build();

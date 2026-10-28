@@ -27,6 +27,14 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  jwt:
+    # Obligatoire, sans valeur par défaut. Générer avec : openssl rand -base64 48
+    secret: ${JWT_SECRET}
+    access-ttl-minutes: ${JWT_ACCESS_TTL_MINUTES:15}
+  bootstrap:
+    # Création du PREMIER administrateur (voir README). À supprimer de l'environnement après usage.
+    admin-email: ${BOOTSTRAP_ADMIN_EMAIL:}
+    admin-password: ${BOOTSTRAP_ADMIN_PASSWORD:}
   cors:
     # Liste d'origines séparées par des virgules (ex. l'URL du frontend déployé).
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}

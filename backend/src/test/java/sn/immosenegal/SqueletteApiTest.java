@@ -5,21 +5,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * Tests du squelette. Ils démarrent l'application complète : une base PostgreSQL doit être
  * joignable avec les variables DB_URL, DB_USER et DB_PASSWORD (voir README).
  */
-@SpringBootTest
-@AutoConfigureMockMvc
-class SqueletteApiTest {
-
-    @Autowired
-    private MockMvc mvc;
+class SqueletteApiTest extends AbstractApiTest {
 
     @Test
     void healthEstPublicEtConfirmeQueFlywayAAppliqueLaMigration() throws Exception {
