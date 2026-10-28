@@ -38,6 +38,23 @@ jobs:
       - name: Compiler et lancer les tests
         working-directory: backend
         run: mvn -B verify
+      - name: Résumé des tests (visible dans le run)
+        if: always()
+        working-directory: backend
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          total = echecs = 0
+          lignes = []
+          for f in sorted(glob.glob("target/surefire-reports/TEST-*.xml")):
+              r = ET.parse(f).getroot()
+              t = int(r.get("tests", 0))
+              ko = int(r.get("failures", 0)) + int(r.get("errors", 0))
+              total += t
+              echecs += ko
+              lignes.append(f"{r.get('name').split('.')[-1]}={t}")
+          print(f"::notice title=Resume des tests backend::{total} tests executes, {echecs} echec(s) | " + " ; ".join(lignes))
+          PY
       - name: Publier les rapports de tests
         if: always()
         uses: actions/upload-artifact@v4
