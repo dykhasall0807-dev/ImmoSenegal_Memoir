@@ -28,7 +28,11 @@ import sn.immosenegal.user.UserRepository;
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = "app.jwt.secret=secret-de-test-uniquement-0123456789abcdef0123456789")
+@TestPropertySource(properties = {
+    "app.jwt.secret=secret-de-test-uniquement-0123456789abcdef0123456789",
+    // Tous les tests partagent l'IP 127.0.0.1 : on relève la limite par IP pour ne tester que la limite par email.
+    "app.security.login-ip-max-failures=1000"
+})
 abstract class AbstractApiTest {
 
     protected static final String MOT_DE_PASSE = "MotDePasse-Solide-123";

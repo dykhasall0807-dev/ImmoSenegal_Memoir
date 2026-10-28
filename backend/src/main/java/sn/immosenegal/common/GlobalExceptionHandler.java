@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,13 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiError> accesInterdit(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
             .body(ApiError.of(403, "Accès interdit", "Vous n'avez pas le droit d'effectuer cette action."));
+    }
+
+    @ExceptionHandler(TropDeTentativesException.class)
+    ResponseEntity<ApiError> tropDeTentatives(TropDeTentativesException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+            .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.getSecondes()))
+            .body(ApiError.of(429, "Trop de tentatives", ex.getMessage()));
     }
 
     @ExceptionHandler(ApiException.class)

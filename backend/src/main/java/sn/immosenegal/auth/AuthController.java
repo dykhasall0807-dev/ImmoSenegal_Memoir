@@ -3,6 +3,7 @@ package sn.immosenegal.auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -39,9 +40,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Se connecter et obtenir un jeton d'accès")
-    public AuthResponse connecter(@Valid @RequestBody LoginRequest requete) {
-        return service.connecter(requete);
+    @Operation(summary = "Se connecter et obtenir un jeton d'accès (429 après trop d'échecs)")
+    public AuthResponse connecter(@Valid @RequestBody LoginRequest requete, HttpServletRequest http) {
+        return service.connecter(requete, http.getRemoteAddr());
     }
 
     @GetMapping("/me")

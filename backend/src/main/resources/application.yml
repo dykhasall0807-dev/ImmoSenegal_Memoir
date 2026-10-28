@@ -17,6 +17,8 @@ spring:
 
 server:
   port: ${PORT:8080}
+  # À mettre à « native » UNIQUEMENT derrière un proxy de confiance (ex. Render) pour lire la vraie IP du client.
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:none}
   error:
     include-message: never
     include-stacktrace: never
@@ -31,6 +33,10 @@ app:
     # Obligatoire, sans valeur par défaut. Générer avec : openssl rand -base64 48
     secret: ${JWT_SECRET}
     access-ttl-minutes: ${JWT_ACCESS_TTL_MINUTES:15}
+  security:
+    login-max-failures: ${LOGIN_MAX_FAILURES:5}
+    login-ip-max-failures: ${LOGIN_IP_MAX_FAILURES:20}
+    login-window-minutes: ${LOGIN_WINDOW_MINUTES:15}
   bootstrap:
     # Création du PREMIER administrateur (voir README). À supprimer de l'environnement après usage.
     admin-email: ${BOOTSTRAP_ADMIN_EMAIL:}
