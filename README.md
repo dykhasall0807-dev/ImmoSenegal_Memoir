@@ -3,7 +3,7 @@
 Plateforme immobilière sénégalaise (location et vente) : projet de mémoire de Licence 3 Ingénierie Informatique, UASZ.
 Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de projets.
 
-**Stack :** Java 21, Spring Boot 3.4, Spring Security, PostgreSQL 16, Flyway, Swagger/OpenAPI. Le frontend (React, TypeScript, Vite, Tailwind, carte Leaflet/OpenStreetMap) arrive à l'étape suivante.
+**Stack :** Java 21, Spring Boot 3.4, Spring Security, PostgreSQL 16, Flyway, Swagger/OpenAPI. Frontend : React, TypeScript, Vite, Tailwind, carte Leaflet/OpenStreetMap (sans clé API).
 
 ## État du projet
 
@@ -11,7 +11,7 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 |---|---|
 | Squelette backend (sécurité, CORS, Swagger, Flyway, `/api/health`) | **Vérifié par la CI** (compilation + 3 tests, le 28/10/2026) |
 | Authentification, rôles, annonces, visites, paiements simulés, assistant | À faire |
-| Frontend : projet de base, accueil (recherche), catalogue provisoire, page 404 | Compilé et testé ici (6 tests) ; **CI à confirmer** |
+| Frontend : projet de base, accueil (recherche), catalogue provisoire, page 404 | **Vérifié par la CI** (compilation + 6 tests, le 28/10/2026) |
 | Frontend : connexion, inscription, catalogue réel, détail, tableau de bord, carte | À faire |
 
 Un élément n'est marqué « vérifié » que lorsque la CI (onglet « Actions » de GitHub) est verte.
