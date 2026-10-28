@@ -11,7 +11,8 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 |---|---|
 | Squelette backend (sécurité, CORS, Swagger, Flyway, `/api/health`) | **Vérifié par la CI** (compilation + 3 tests, le 28/10/2026) |
 | Authentification, rôles, annonces, visites, paiements simulés, assistant | À faire |
-| Frontend | À faire |
+| Frontend : projet de base, accueil (recherche), catalogue provisoire, page 404 | Compilé et testé ici (6 tests) ; **CI à confirmer** |
+| Frontend : connexion, inscription, catalogue réel, détail, tableau de bord, carte | À faire |
 
 Un élément n'est marqué « vérifié » que lorsque la CI (onglet « Actions » de GitHub) est verte.
 
@@ -35,7 +36,17 @@ set -a && source ../.env && set +a
 mvn spring-boot:run
 ```
 
-Vérifications :
+Frontend (dans un second terminal) :
+
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:5173 (les appels /api sont redirigés vers le backend)
+npm test           # tests
+npm run build      # compilation de production
+```
+
+Vérifications du backend :
 
 - Santé de l'API : <http://localhost:8080/api/health> (doit répondre `"statut": "UP"`)
 - Documentation Swagger : <http://localhost:8080/swagger-ui.html>
