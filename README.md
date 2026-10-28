@@ -9,11 +9,11 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 
 | Élément | État |
 |---|---|
-| Squelette backend (sécurité, CORS, Swagger, Flyway, `/api/health`) | Écrit, **pas encore vérifié par la CI** |
+| Squelette backend (sécurité, CORS, Swagger, Flyway, `/api/health`) | **Vérifié par la CI** (compilation + 3 tests, le 28/10/2026) |
 | Authentification, rôles, annonces, visites, paiements simulés, assistant | À faire |
 | Frontend | À faire |
 
-Cette ligne sera mise à jour uniquement quand la CI (onglet « Actions » de GitHub) sera verte.
+Un élément n'est marqué « vérifié » que lorsque la CI (onglet « Actions » de GitHub) est verte.
 
 ## Prérequis
 
