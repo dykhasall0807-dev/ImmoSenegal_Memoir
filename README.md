@@ -10,10 +10,12 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 | Élément | État |
 |---|---|
 | Squelette backend (sécurité, CORS, Swagger, Flyway, `/api/health`) | **Vérifié par la CI** (compilation + 3 tests, le 28/10/2026) |
-| Authentification JWT (inscription CLIENT, connexion, profil), rôles, premier ADMIN, demandes de rôle validées par ADMIN, journal d'audit | **Vérifié par la CI** (36 tests backend, 0 échec, le 28/10/2026) |
+| Authentification JWT (inscription CLIENT, connexion, profil), rôles, premier ADMIN, demandes de rôle validées par ADMIN, journal d'audit | **Vérifié par la CI** (tests backend) |
 | Limitation des tentatives de connexion (5 échecs/email, 20/IP, 15 min → 429 + Retry-After) | **Vérifié par la CI** |
 | Renouvellement du jeton (cookie HttpOnly), déconnexion côté serveur, mot de passe oublié | À faire |
-| Annonces, visites, offres, paiements simulés, messagerie, assistant, vérification des annonces | À faire |
+| Annonces (backend) : publication (PROPRIETAIRE/AGENT/ADMIN), modification/suppression par le propriétaire ou un ADMIN, catalogue public, recherche filtrée + pagination + tri | **Vérifié par la CI** (51 tests backend au total, 0 échec, le 29/10/2026) |
+| Annonces : photos, liste et détail dans le frontend, carte | À faire |
+| Visites, offres, paiements simulés, messagerie, assistant, vérification des annonces | À faire |
 | Frontend : projet de base, accueil (recherche), catalogue provisoire, page 404 | **Vérifié par la CI** (compilation + tests) |
 | Frontend : pages Connexion, Inscription, Tableau de bord (profil vérifié par `/api/auth/me`), navigation selon la session | Testé avec une API **simulée** (19 tests) ; **pas encore testé contre le vrai backend** |
 | Frontend : catalogue réel, détail d'un bien, carte, demande de rôle | À faire |
