@@ -1,7 +1,8 @@
 import { ShieldCheck, MessageCircle, MapPinned } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import SearchForm from '../components/SearchForm'
-import AnnonceCard from '../components/AnnonceCard'
-import { annoncesDemo } from '../data/demo'
+import ListeAnnonces from '../components/ListeAnnonces'
+import { useAnnonces } from '../components/useAnnonces'
 
 const atouts = [
   { icone: ShieldCheck, titre: 'Annonces vérifiées', texte: "Un badge n'est attribué qu'après examen des justificatifs par un administrateur." },
@@ -10,6 +11,7 @@ const atouts = [
 ]
 
 export default function Home() {
+  const { etat, reessayer } = useAnnonces('taille=3&tri=recent&statut=DISPONIBLE')
   return (
     <>
       <section className="bg-gradient-to-br from-nuit-950 via-nuit-900 to-nuit-800 px-4 pb-16 pt-12 text-white">
@@ -27,16 +29,16 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-12" aria-labelledby="titre-annonces">
-        <h2 id="titre-annonces" className="text-2xl font-bold">
-          Annonces récentes
-        </h2>
-        <p className="mt-1 text-sm text-slate-600">
-          Exemples fictifs de démonstration : le catalogue réel sera relié à la base de données à la prochaine étape.
-        </p>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {annoncesDemo.map((a) => (
-            <AnnonceCard key={a.id} annonce={a} />
-          ))}
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h2 id="titre-annonces" className="text-2xl font-bold">
+            Annonces récentes
+          </h2>
+          <Link to="/catalogue" className="text-sm font-semibold text-emeraude-700 hover:underline">
+            Voir tout le catalogue
+          </Link>
+        </div>
+        <div className="mt-6">
+          <ListeAnnonces etat={etat} reessayer={reessayer} vide="Aucune annonce n'est encore publiée." />
         </div>
       </section>
 

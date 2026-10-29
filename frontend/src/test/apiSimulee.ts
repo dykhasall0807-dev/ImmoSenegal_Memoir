@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import type { Utilisateur } from '../types'
+import type { Annonce, PagePaginee, Utilisateur } from '../types'
 
 export const utilisateurTest: Utilisateur = {
   id: '11111111-1111-1111-1111-111111111111',
@@ -23,7 +23,8 @@ export function json(statut: number, corps: unknown, entetes: Record<string, str
 export function simulerApi(routes: Record<string, Gestionnaire>) {
   const mock = vi.fn(async (url: string, init?: RequestInit) => {
     const cle = `${init?.method ?? 'GET'} ${url}`
-    const gestionnaire = routes[cle]
+    // Une clé peut se terminer par « * » pour accepter n'importe quelle suite (ex. paramètres de recherche).
+    const gestionnaire = routes[cle] ?? Object.entries(routes).find(([k]) => k.endsWith('*') && cle.startsWith(k.slice(0, -1)))?.[1]
     if (!gestionnaire) throw new Error(`Appel non prévu dans le test : ${cle}`)
     return gestionnaire(init)
   })
@@ -33,3 +34,36 @@ export function simulerApi(routes: Record<string, Gestionnaire>) {
 
 export const reponseConnexion = (u: Utilisateur = utilisateurTest) =>
   json(200, { accessToken: 'jeton-de-test', tokenType: 'Bearer', expiresInSeconds: 900, user: u })
+
+export function annonceTest(surcharge: Partial<Annonce> = {}): Annonce {
+  return {
+    id: 'a1111111-1111-1111-1111-111111111111',
+    titre: 'Appartement lumineux',
+    description: 'Un bel appartement.\nProche du marché.',
+    typeBien: 'APPARTEMENT',
+    transaction: 'LOCATION',
+    prix: 120000,
+    superficie: 85,
+    pieces: 3,
+    quartier: 'Kandé',
+    ville: 'Ziguinchor',
+    adresse: 'Rue 12',
+    latitude: null,
+    longitude: null,
+    equipements: ['climatisation', 'wifi'],
+    statut: 'DISPONIBLE',
+    proprietaire: { id: 'p1', nomComplet: 'Awa Diallo' },
+    creeLe: '2026-10-28T10:00:00Z',
+    modifieLe: '2026-10-28T10:00:00Z',
+    ...surcharge,
+  }
+}
+
+export function pageTest(contenu: Annonce[], extra: Partial<PagePaginee<Annonce>> = {}): PagePaginee<Annonce> {
+  return { contenu, page: 0, taille: 12, totalElements: contenu.length, totalPages: 1, ...extra }
+}
+
+/** Paramètres de recherche réellement envoyés au serveur dans un appel donné. */
+export function parametresDe(url: string): URLSearchParams {
+  return new URL(url, 'http://localhost').searchParams
+}

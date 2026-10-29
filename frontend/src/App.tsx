@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import Catalogue from './pages/Catalogue'
+import DetailAnnonce from './pages/DetailAnnonce'
 import NotFound from './pages/NotFound'
 import Connexion from './pages/Connexion'
 import Inscription from './pages/Inscription'
@@ -16,6 +17,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="catalogue" element={<Catalogue />} />
+          <Route path="annonces/:id" element={<DetailAnnonce />} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="inscription" element={<Inscription />} />
           <Route

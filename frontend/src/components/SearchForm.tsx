@@ -18,7 +18,7 @@ export default function SearchForm() {
     const params = new URLSearchParams({ transaction })
     if (type) params.set('type', type)
     if (quartier.trim()) params.set('quartier', quartier.trim())
-    if (budgetMax && Number(budgetMax) > 0) params.set('budgetMax', budgetMax)
+    if (budgetMax && Number(budgetMax) > 0) params.set('prixMax', budgetMax)
     navigate(`/catalogue?${params.toString()}`)
   }
 

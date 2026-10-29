@@ -16,3 +16,6 @@ frontend/dist/
 .vscode/
 *.iml
 .DS_Store
+
+# Fichiers générés par TypeScript
+*.tsbuildinfo
