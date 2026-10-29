@@ -44,6 +44,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                // Catalogue public en lecture ; « mes annonces » exige une session ; publier exige un rôle autorisé.
+                .requestMatchers(HttpMethod.GET, "/api/annonces/mes-annonces").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/annonces", "/api/annonces/*").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/annonces").hasAnyRole("PROPRIETAIRE", "AGENT", "ADMIN")
                 // Zone réservée aux administrateurs : le rôle vient de la base, jamais du client.
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()

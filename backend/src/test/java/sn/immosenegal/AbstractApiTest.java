@@ -78,6 +78,13 @@ abstract class AbstractApiTest {
         return connecter(email);
     }
 
+    /** Crée en base un utilisateur du rôle voulu (simule une demande de rôle déjà validée) et retourne son jeton. */
+    protected String utilisateurConnecte(Role role) throws Exception {
+        String email = emailUnique();
+        users.save(new User(email, encoder.encode(MOT_DE_PASSE), "Utilisateur " + role, null, role));
+        return connecter(email);
+    }
+
     protected static String bearer(String jeton) {
         return "Bearer " + jeton;
     }

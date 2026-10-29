@@ -12,6 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * Transforme les erreurs courantes en réponses JSON claires. Les autres erreurs restent gérées
@@ -52,6 +53,12 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiError> corpsIllisible(HttpMessageNotReadableException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ApiError.of(400, "Requête invalide", "Le corps de la requête est illisible ou contient une valeur inconnue."));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    ResponseEntity<ApiError> parametreInvalide(MethodArgumentTypeMismatchException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ApiError.of(400, "Requête invalide", "Valeur invalide pour le paramètre « " + ex.getName() + " »."));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
