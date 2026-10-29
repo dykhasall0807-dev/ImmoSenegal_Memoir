@@ -3,15 +3,32 @@ import Layout from './components/Layout'
 import Home from './pages/Home'
 import Catalogue from './pages/Catalogue'
 import NotFound from './pages/NotFound'
+import Connexion from './pages/Connexion'
+import Inscription from './pages/Inscription'
+import Dashboard from './pages/Dashboard'
+import RequireAuth from './components/RequireAuth'
+import { AuthProvider } from './auth'
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="catalogue" element={<Catalogue />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="catalogue" element={<Catalogue />} />
+          <Route path="connexion" element={<Connexion />} />
+          <Route path="inscription" element={<Inscription />} />
+          <Route
+            path="tableau-de-bord"
+            element={
+              <RequireAuth>
+                <Dashboard />
+              </RequireAuth>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </AuthProvider>
   )
 }
