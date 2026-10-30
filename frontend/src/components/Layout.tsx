@@ -1,3 +1,4 @@
+import BandeauServeurLent from './BandeauServeurLent'
 import { NavLink, Outlet, Link } from 'react-router-dom'
 import { Building2, LogOut } from 'lucide-react'
 import { useAuth } from '../auth'
@@ -60,6 +61,7 @@ export default function Layout() {
           </nav>
         </div>
       </header>
+      <BandeauServeurLent />
 
       <main id="contenu" className="flex-1">
         <Outlet />

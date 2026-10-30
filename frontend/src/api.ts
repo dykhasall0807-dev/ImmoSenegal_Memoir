@@ -37,8 +37,47 @@ function messageParDefaut(status: number): string {
   return 'La requête a échoué.'
 }
 
+// --- Serveur lent (ex. hébergement gratuit qui se réveille) ---------------------------------------------------------
+const SEUIL_LENT_MS = 4000
+let requetesLentes = 0
+const abonnes = new Set<() => void>()
+
+export function abonnerServeurLent(rappel: () => void): () => void {
+  abonnes.add(rappel)
+  return () => {
+    abonnes.delete(rappel)
+  }
+}
+
+/** Vrai quand au moins une requête attend une réponse depuis plus de quelques secondes. */
+export function serveurLent(): boolean {
+  return requetesLentes > 0
+}
+
+function notifier() {
+  abonnes.forEach((rappel) => rappel())
+}
+
 /** Appelle l'API et transforme toute erreur en ApiError avec un message lisible. */
-export async function appelApi<T>(chemin: string, { method = 'GET', body, token, cookie }: Options = {}): Promise<T> {
+export async function appelApi<T>(chemin: string, options: Options = {}): Promise<T> {
+  let lente = false
+  const minuterie = setTimeout(() => {
+    lente = true
+    requetesLentes++
+    notifier()
+  }, SEUIL_LENT_MS)
+  try {
+    return await appelApiBrut<T>(chemin, options)
+  } finally {
+    clearTimeout(minuterie)
+    if (lente) {
+      requetesLentes--
+      notifier()
+    }
+  }
+}
+
+async function appelApiBrut<T>(chemin: string, { method = 'GET', body, token, cookie }: Options): Promise<T> {
   const entetes: Record<string, string> = { Accept: 'application/json' }
   const formulaire = typeof FormData !== 'undefined' && body instanceof FormData
   // Pour un envoi de fichier, le navigateur fixe lui-même le Content-Type (avec la frontière multipart).
