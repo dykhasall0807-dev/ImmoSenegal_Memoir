@@ -12,7 +12,8 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 | Squelette backend (sécurité, CORS, Swagger, Flyway, `/api/health`) | **Vérifié par la CI** (compilation + 3 tests, le 28/10/2026) |
 | Authentification JWT (inscription CLIENT, connexion, profil), rôles, premier ADMIN, demandes de rôle validées par ADMIN, journal d'audit | **Vérifié par la CI** (tests backend) |
 | Limitation des tentatives de connexion (5 échecs/email, 20/IP, 15 min → 429 + Retry-After) | **Vérifié par la CI** |
-| Renouvellement du jeton (cookie HttpOnly), déconnexion côté serveur, mot de passe oublié | À faire |
+| Session longue : cookie HttpOnly de rafraîchissement (jeton à usage unique, rotation, détection de réutilisation), déconnexion côté serveur | **Vérifié par la CI** (62 tests backend, 0 échec ; rechargement de page vérifié en bout en bout) |
+| Mot de passe oublié | À faire |
 | Annonces (backend) : publication (PROPRIETAIRE/AGENT/ADMIN), modification/suppression par le propriétaire ou un ADMIN, catalogue public, recherche filtrée + pagination + tri | **Vérifié par la CI** (51 tests backend au total, 0 échec, le 29/10/2026) |
 | Annonces : photos, carte | À faire |
 | Visites, offres, paiements simulés, messagerie, assistant, vérification des annonces | À faire |
@@ -22,7 +23,9 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 
 Un élément n'est marqué « vérifié » que lorsque la CI (onglet « Actions » de GitHub) est verte.
 
-**Limite actuelle de la session :** le jeton d'accès est gardé uniquement en mémoire (jamais dans `localStorage`). Conséquence : recharger la page déconnecte l'utilisateur. Le renouvellement par cookie HttpOnly, prévu, supprimera ce défaut.
+**Session :** le jeton d'accès (15 min) reste en mémoire du navigateur, jamais dans `localStorage`. Un cookie `HttpOnly` limité à `/api/auth` (illisible par JavaScript) permet de retrouver la session après un rechargement et de renouveler le jeton discrètement. Chaque jeton de rafraîchissement ne sert qu'une fois ; si un ancien jeton est rejoué, toutes les sessions du compte sont révoquées. Seule l'empreinte SHA-256 est stockée en base. La déconnexion révoque le jeton côté serveur.
+
+**À régler au déploiement :** `REFRESH_COOKIE_SECURE=true` (https) et `CORS_ALLOWED_ORIGINS` = adresse exacte du frontend. Si le frontend et l'API sont sur deux sites différents (ex. Vercel + Render), mettre `REFRESH_COOKIE_SAMESITE=None`.
 
 ## Prérequis
 
