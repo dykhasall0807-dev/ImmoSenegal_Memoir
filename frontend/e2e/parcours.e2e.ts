@@ -13,6 +13,8 @@ async function connecter(page: Page, email: string, motDePasse: string) {
   await page.getByLabel('Adresse email').fill(email)
   await page.getByLabel('Mot de passe').fill(motDePasse)
   await page.getByRole('button', { name: /se connecter/i }).click()
+  // Après connexion, le site peut renvoyer vers la dernière page demandée : on passe par « Mon espace ».
+  await page.getByRole('link', { name: 'Mon espace' }).click()
   await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
 }
 
