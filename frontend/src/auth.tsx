@@ -16,6 +16,8 @@ interface ContexteAuth {
   connecter: (email: string, password: string) => Promise<void>
   inscrire: (donnees: DonneesInscription) => Promise<void>
   deconnecter: () => void
+  /** Met à jour le profil gardé en mémoire avec celui vérifié par le serveur (ex. rôle approuvé entre-temps). */
+  majUtilisateur: (u: Utilisateur) => void
 }
 
 const Contexte = createContext<ContexteAuth | null>(null)
@@ -45,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 
   const deconnecter = useCallback(() => setSession(null), [])
+  const majUtilisateur = useCallback((u: Utilisateur) => setSession((s) => (s ? { ...s, utilisateur: u } : s)), [])
 
   const valeur = useMemo<ContexteAuth>(
     () => ({
@@ -53,8 +56,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       connecter,
       inscrire,
       deconnecter,
+      majUtilisateur,
     }),
-    [session, connecter, inscrire, deconnecter],
+    [session, connecter, inscrire, deconnecter, majUtilisateur],
   )
 
   return <Contexte.Provider value={valeur}>{children}</Contexte.Provider>
