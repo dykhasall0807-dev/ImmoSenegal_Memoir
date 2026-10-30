@@ -1,0 +1,28 @@
+# Plan de déploiement Render (« Blueprint »). Aucun secret ici : les valeurs sensibles sont saisies dans le tableau de bord Render.
+services:
+  - type: web
+    name: immosenegal-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    # Déploiement automatique à chaque commit, uniquement si les vérifications GitHub (CI) sont au vert.
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true          # secret aléatoire créé par Render, jamais dans Git
+      - key: DB_URL
+        sync: false                  # jdbc:postgresql://... (fourni par Neon, à saisir dans Render)
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false                  # adresse exacte du site (https://....vercel.app)
+      - key: FORWARD_HEADERS_STRATEGY
+        value: native                # lit la vraie IP du client derrière le proxy Render
+      - key: REFRESH_COOKIE_SECURE
+        value: "true"
+      - key: REFRESH_COOKIE_SAMESITE
+        value: Strict                # le site appelle /api via Vercel (même origine), donc Strict convient

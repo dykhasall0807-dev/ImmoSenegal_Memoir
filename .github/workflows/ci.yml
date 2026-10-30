@@ -159,3 +159,11 @@ jobs:
             grep -E 'PAGE-|Error|Locator|Expected|Received|✘' e2e.log | head -c 2500 | sed -E 's/Mdp-E2E-[^"'"'"' ]*/[masque]/g' | python3 -c "import sys;print('::error title=Extrait E2E::'+sys.stdin.read().replace('%','%25').replace('\r','').replace('\n','%0A'))"
           fi
           tail -n 30 backend.log | sed -E 's/(password|token)[^ ]*/[masque]/Ig' || true
+
+  docker:
+    name: Image Docker du backend (construction)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construire l'image (sans la publier)
+        run: docker build -t immosenegal-api:ci backend
