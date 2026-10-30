@@ -61,6 +61,18 @@ public class GlobalExceptionHandler {
             .body(ApiError.of(400, "Requête invalide", "Valeur invalide pour le paramètre « " + ex.getName() + " »."));
     }
 
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    ResponseEntity<ApiError> fichierTropGros(org.springframework.web.multipart.MaxUploadSizeExceededException ex) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+            .body(ApiError.of(413, "Fichier trop volumineux", "Le fichier dépasse la taille autorisée (5 Mo)."));
+    }
+
+    @ExceptionHandler(org.springframework.web.multipart.support.MissingServletRequestPartException.class)
+    ResponseEntity<ApiError> partieManquante(org.springframework.web.multipart.support.MissingServletRequestPartException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ApiError.of(400, "Requête invalide", "Aucun fichier reçu."));
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ApiError> conflit(DataIntegrityViolationException ex) {
         // Ex. deux inscriptions simultanées avec le même email : on n'expose pas le détail SQL.

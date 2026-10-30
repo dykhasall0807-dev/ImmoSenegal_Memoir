@@ -5,7 +5,12 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.List;
+import java.util.Collection;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -30,11 +35,13 @@ public class AnnonceService {
     private final AnnonceRepository annonces;
     private final UserRepository users;
     private final AuditService audit;
+    private final PhotoRepository photos;
 
-    public AnnonceService(AnnonceRepository annonces, UserRepository users, AuditService audit) {
+    public AnnonceService(AnnonceRepository annonces, UserRepository users, AuditService audit, PhotoRepository photos) {
         this.annonces = annonces;
         this.users = users;
         this.audit = audit;
+        this.photos = photos;
     }
 
     @Transactional
@@ -50,7 +57,7 @@ public class AnnonceService {
         annonce.setStatut(StatutAnnonce.DISPONIBLE);
         annonces.save(annonce);
         audit.enregistrer("ANNONCE_CREEE", auteur.id(), "Annonce " + annonce.getId());
-        return AnnonceResponse.de(annonce);
+        return AnnonceResponse.de(annonce, List.of());
     }
 
     @Transactional
@@ -62,7 +69,7 @@ public class AnnonceService {
             annonce.setStatut(requete.statut());
         }
         audit.enregistrer("ANNONCE_MODIFIEE", auteur.id(), "Annonce " + id);
-        return AnnonceResponse.de(annonce);
+        return AnnonceResponse.de(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
     }
 
     @Transactional
@@ -76,22 +83,43 @@ public class AnnonceService {
 
     @Transactional(readOnly = true)
     public AnnonceResponse obtenir(UUID id) {
-        return AnnonceResponse.de(trouver(id));
+        Annonce annonce = trouver(id);
+        return AnnonceResponse.de(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
     }
 
     @Transactional(readOnly = true)
     public PageResponse<AnnonceResponse> rechercher(CriteresRecherche criteres, Integer page, Integer taille, String tri) {
-        return PageResponse.de(annonces.findAll(AnnonceSpecifications.depuis(criteres), pageable(page, taille, tri))
-            .map(AnnonceResponse::de));
+        return enPage(annonces.findAll(AnnonceSpecifications.depuis(criteres), pageable(page, taille, tri)));
     }
 
     @Transactional(readOnly = true)
     public PageResponse<AnnonceResponse> mesAnnonces(AuthenticatedUser utilisateur, Integer page, Integer taille) {
-        return PageResponse.de(annonces.findByProprietaireId(utilisateur.id(), pageable(page, taille, "recent"))
-            .map(AnnonceResponse::de));
+        return enPage(annonces.findByProprietaireId(utilisateur.id(), pageable(page, taille, "recent")));
     }
 
     // ---------- Règles internes ----------
+
+    /** Vérifie que l'utilisateur peut modifier cette annonce (propriétaire ou ADMIN) et la retourne. */
+    Annonce annonceModifiable(UUID id, AuthenticatedUser utilisateur) {
+        Annonce annonce = trouver(id);
+        verifierDroits(annonce, utilisateur);
+        return annonce;
+    }
+
+    private PageResponse<AnnonceResponse> enPage(Page<Annonce> page) {
+        Map<UUID, List<UUID>> parAnnonce = photosDe(page.getContent().stream().map(Annonce::getId).toList());
+        return PageResponse.de(page.map(a -> AnnonceResponse.de(a, parAnnonce.getOrDefault(a.getId(), List.of()))));
+    }
+
+    /** Identifiants de photos par annonce, en une seule requête (sans charger les images). */
+    private Map<UUID, List<UUID>> photosDe(Collection<UUID> ids) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return photos.referencesPour(ids).stream().collect(
+            Collectors.groupingBy(PhotoRepository.Reference::getAnnonceId,
+                Collectors.mapping(PhotoRepository.Reference::getId, Collectors.toList())));
+    }
 
     private Annonce trouver(UUID id) {
         return annonces.findById(id).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Annonce introuvable."));

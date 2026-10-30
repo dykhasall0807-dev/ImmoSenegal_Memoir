@@ -48,7 +48,7 @@ public class SecurityConfig {
                     "/api/auth/refresh", "/api/auth/logout").permitAll()
                 // Catalogue public en lecture ; « mes annonces » exige une session ; publier exige un rôle autorisé.
                 .requestMatchers(HttpMethod.GET, "/api/annonces/mes-annonces").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/annonces", "/api/annonces/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/annonces", "/api/annonces/*", "/api/annonces/*/photos/*").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/annonces").hasAnyRole("PROPRIETAIRE", "AGENT", "ADMIN")
                 // Zone réservée aux administrateurs : le rôle vient de la base, jamais du client.
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")

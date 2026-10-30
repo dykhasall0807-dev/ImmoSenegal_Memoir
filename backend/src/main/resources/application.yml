@@ -6,6 +6,11 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/immosenegal}
     username: ${DB_USER:immosenegal}
     password: ${DB_PASSWORD}
+  servlet:
+    multipart:
+      # Photos : 5 Mo maximum (le défaut de Spring serait 1 Mo).
+      max-file-size: 5MB
+      max-request-size: 6MB
   jpa:
     open-in-view: false
     hibernate:
