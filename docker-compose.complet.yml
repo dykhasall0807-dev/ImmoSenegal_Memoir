@@ -1,0 +1,45 @@
+# Application COMPLÈTE en une commande (base + API + site). Voir « Lancer toute l'application » dans le README.
+# Les secrets viennent du fichier .env.complet, généré automatiquement par scripts/demarrer.sh (ou .ps1) : rien n'est écrit en dur ici.
+name: immosenegal
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: immosenegal
+      POSTGRES_USER: immosenegal
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Lancer scripts/demarrer.sh pour générer .env.complet}
+    volumes:
+      - donnees-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U immosenegal -d immosenegal"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/immosenegal
+      DB_USER: immosenegal
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Lancer scripts/demarrer.sh pour générer .env.complet}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      CORS_ALLOWED_ORIGINS: http://localhost:8080
+      # Le proxy nginx est de confiance : on lit la vraie adresse du client. Le cookie n'est pas « Secure » car l'accès local est en http.
+      FORWARD_HEADERS_STRATEGY: native
+      REFRESH_COOKIE_SECURE: "false"
+    # L'API n'est pas publiée sur la machine : seul le site (nginx) y accède.
+
+  web:
+    build: ./frontend
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:8080:8080"   # accessible uniquement depuis cet ordinateur
+
+volumes:
+  donnees-db:

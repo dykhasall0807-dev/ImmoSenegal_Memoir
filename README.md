@@ -27,7 +27,33 @@ Un élément n'est marqué « vérifié » que lorsque la CI (onglet « Actions 
 
 **À régler au déploiement :** `REFRESH_COOKIE_SECURE=true` (https) et `CORS_ALLOWED_ORIGINS` = adresse exacte du frontend. Si le frontend et l'API sont sur deux sites différents (ex. Vercel + Render), mettre `REFRESH_COOKIE_SAMESITE=None`.
 
-## Prérequis
+## Lancer toute l'application (méthode recommandée, une seule commande)
+
+Prérequis : **Docker** uniquement (Docker Desktop sous Windows et macOS). Ni Java, ni Node, ni Maven à installer.
+
+```bash
+# Linux, macOS ou Git Bash
+bash scripts/demarrer.sh
+```
+
+```powershell
+# Windows (PowerShell, Docker Desktop démarré)
+powershell -ExecutionPolicy Bypass -File scripts\demarrer.ps1
+```
+
+Au premier lancement, le script génère au hasard les secrets (mot de passe de la base, clé JWT, premier compte administrateur) dans le fichier `.env.complet`. Ce fichier est ignoré par Git : il n'existe que sur votre ordinateur. Le premier lancement prend 3 à 6 minutes (construction des images).
+
+- Application : http://localhost:8080 (accessible uniquement depuis votre ordinateur)
+- Documentation de l'API (Swagger) : http://localhost:8080/swagger-ui.html
+- Compte administrateur : voir `BOOTSTRAP_ADMIN_EMAIL` et `BOOTSTRAP_ADMIN_PASSWORD` dans `.env.complet`
+- Arrêter : `docker compose -f docker-compose.complet.yml --env-file .env.complet down`
+- Tout effacer (données comprises) : même commande avec `down -v`, puis supprimer `.env.complet`
+
+**Vérification :** la CI GitHub exécute `scripts/demarrer.sh` puis le parcours de bout en bout dans un vrai navigateur sur cette application dockerisée. Le script PowerShell est identique dans son principe mais **n'est pas testé automatiquement** (la CI tourne sous Linux).
+
+## Démarrage pour développer (sans Docker complet)
+
+Prérequis de cette méthode :
 
 - Java 21 et Maven 3.9+
 - Docker (pour PostgreSQL en local) ou un PostgreSQL 16 déjà installé
