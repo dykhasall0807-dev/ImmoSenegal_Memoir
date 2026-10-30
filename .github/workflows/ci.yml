@@ -146,9 +146,15 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Lancer le parcours de bout en bout
         working-directory: frontend
-        run: npm run test:e2e
+        run: |
+          set -o pipefail
+          npm run test:e2e 2>&1 | tee ../e2e.log
       - name: Résumé (visible dans le run)
         if: always()
         run: |
           echo "::notice title=E2E::job termine, statut=${{ job.status }}"
+          # Extrait de l'erreur dans une annotation (les journaux complets ne sont pas lisibles hors de GitHub).
+          if [ -f e2e.log ]; then
+            head -c 2500 e2e.log | sed -E 's/Mdp-E2E-[^"'"'"' ]*/[masque]/g' | python3 -c "import sys;print('::error title=Extrait E2E::'+sys.stdin.read().replace('%','%25').replace('\r','').replace('\n','%0A'))"
+          fi
           tail -n 30 backend.log | sed -E 's/(password|token)[^ ]*/[masque]/Ig' || true
