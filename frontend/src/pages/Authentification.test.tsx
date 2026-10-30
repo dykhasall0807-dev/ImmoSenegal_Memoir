@@ -89,9 +89,10 @@ describe('Connexion', () => {
 })
 
 describe('Accès protégé et déconnexion', () => {
-  it('redirige un visiteur anonyme du tableau de bord vers la connexion', () => {
+  it('redirige un visiteur anonyme du tableau de bord vers la connexion', async () => {
+    simulerApi({})
     afficher('/tableau-de-bord')
-    expect(screen.getByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
   })
 
   it('la déconnexion efface la session et ferme l\'espace personnel', async () => {

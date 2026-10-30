@@ -37,13 +37,15 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, JwtService jwtService, UserRepository users) throws Exception {
         http
-            // Pas de cookies de session : l'authentification se fera par jeton, donc CSRF inutile.
+            // Pas de cookie de session : l'API lit un jeton Bearer. Le seul cookie (rafraîchissement) est HttpOnly, limité à
+            // /api/auth, SameSite, et refresh/logout exigent un en-tête personnalisé : donc CSRF désactivé sans risque ici.
             .csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login",
+                    "/api/auth/refresh", "/api/auth/logout").permitAll()
                 // Catalogue public en lecture ; « mes annonces » exige une session ; publier exige un rôle autorisé.
                 .requestMatchers(HttpMethod.GET, "/api/annonces/mes-annonces").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/annonces", "/api/annonces/*").permitAll()
@@ -68,7 +70,9 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Arrays.stream(allowedOrigins).map(String::trim).toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+        // Nécessaire pour que le navigateur accepte le cookie de rafraîchissement entre deux origines.
+        config.setAllowCredentials(true);
         config.setExposedHeaders(List.of("Retry-After"));
         config.setMaxAge(3600L);
 

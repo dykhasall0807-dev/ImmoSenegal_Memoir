@@ -19,7 +19,10 @@ async function connecter(page: Page, email: string, motDePasse: string) {
 }
 
 async function deconnecter(page: Page) {
+  // On attend la réponse du serveur : c'est elle qui efface le cookie de session.
+  const reponse = page.waitForResponse((r) => r.url().includes('/api/auth/logout'))
   await page.getByRole('button', { name: /déconnexion/i }).click()
+  expect((await reponse).status()).toBe(204)
   await expect(page.getByRole('link', { name: 'Connexion' })).toBeVisible()
 }
 
@@ -50,12 +53,14 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   await expect(page.getByRole('heading', { name: /Bonjour, Cliente E2E/ })).toBeVisible()
   await expect(page.getByText('Client', { exact: true })).toBeVisible()
 
-  // 2. Un Client ne peut pas publier. (Le rechargement de page efface la session en mémoire : limite connue.)
+  // 2. La session survit à un rechargement de page (cookie HttpOnly), et le cookie n'est pas lisible par JavaScript.
+  await page.reload()
+  await expect(page.getByRole('heading', { name: /Bonjour, Cliente E2E/ })).toBeVisible()
+  expect(await page.evaluate(() => document.cookie)).not.toContain('immosenegal_refresh')
+  expect(await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))).not.toContain('eyJ')
+
+  // 2b. Un Client ne peut pas publier (message clair dans l'interface ; le serveur refuserait aussi).
   await page.goto('/annonces/nouvelle')
-  await expect(page).toHaveURL(/connexion/)
-  await page.getByLabel('Adresse email').fill(CLIENT_EMAIL)
-  await page.getByLabel('Mot de passe').fill(CLIENT_PASSWORD)
-  await page.getByRole('button', { name: /se connecter/i }).click()
   await expect(page.getByRole('alert')).toContainText('compte Client')
   await page.getByRole('link', { name: 'Mon espace' }).click()
   await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
@@ -74,6 +79,10 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   await carte.getByRole('button', { name: 'Approuver' }).click()
   await expect(page.getByRole('listitem').filter({ hasText: CLIENT_EMAIL })).toHaveCount(0)
   await deconnecter(page)
+
+  // 4b. Après déconnexion, un rechargement ne ramène pas la session.
+  await page.reload()
+  await expect(page.getByRole('link', { name: 'Connexion' })).toBeVisible()
 
   // 5. Le nouveau Propriétaire publie une annonce.
   await connecter(page, CLIENT_EMAIL, CLIENT_PASSWORD)

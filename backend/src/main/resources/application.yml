@@ -37,6 +37,10 @@ app:
     login-max-failures: ${LOGIN_MAX_FAILURES:5}
     login-ip-max-failures: ${LOGIN_IP_MAX_FAILURES:20}
     login-window-minutes: ${LOGIN_WINDOW_MINUTES:15}
+    # Session longue : cookie HttpOnly + jeton à usage unique. Voir .env.example pour Secure / SameSite.
+    refresh-ttl-days: ${REFRESH_TTL_DAYS:7}
+    refresh-cookie-secure: ${REFRESH_COOKIE_SECURE:true}
+    refresh-cookie-samesite: ${REFRESH_COOKIE_SAMESITE:Strict}
   bootstrap:
     # Création du PREMIER administrateur (voir README). À supprimer de l'environnement après usage.
     admin-email: ${BOOTSTRAP_ADMIN_EMAIL:}

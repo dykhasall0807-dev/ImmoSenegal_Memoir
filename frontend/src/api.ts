@@ -19,6 +19,8 @@ interface Options {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   body?: unknown
   token?: string | null
+  /** Envoie/reçoit le cookie HttpOnly de session (login, refresh, logout) avec l'en-tête exigé par le serveur. */
+  cookie?: boolean
 }
 
 function messageParDefaut(status: number): string {
@@ -31,10 +33,11 @@ function messageParDefaut(status: number): string {
 }
 
 /** Appelle l'API et transforme toute erreur en ApiError avec un message lisible. */
-export async function appelApi<T>(chemin: string, { method = 'GET', body, token }: Options = {}): Promise<T> {
+export async function appelApi<T>(chemin: string, { method = 'GET', body, token, cookie }: Options = {}): Promise<T> {
   const entetes: Record<string, string> = { Accept: 'application/json' }
   if (body !== undefined) entetes['Content-Type'] = 'application/json'
   if (token) entetes.Authorization = `Bearer ${token}`
+  if (cookie) entetes['X-Requested-With'] = 'immosenegal'
 
   let reponse: Response
   try {
@@ -42,6 +45,7 @@ export async function appelApi<T>(chemin: string, { method = 'GET', body, token 
       method,
       headers: entetes,
       body: body === undefined ? undefined : JSON.stringify(body),
+      credentials: cookie ? 'include' : undefined,
     })
   } catch {
     throw new ApiError(0, 'Impossible de joindre le serveur. Vérifiez votre connexion internet.')

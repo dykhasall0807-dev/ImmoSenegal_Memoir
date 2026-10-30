@@ -14,7 +14,7 @@ async function connecter(role: 'CLIENT' | 'ADMIN', routes: Parameters<typeof sim
   })
   const user = userEvent.setup()
   render(<MemoryRouter initialEntries={['/connexion']}><App /></MemoryRouter>)
-  await user.type(screen.getByLabelText(/email/i), 'khady@example.test')
+  await user.type(await screen.findByLabelText(/email/i), 'khady@example.test')
   await user.type(screen.getByLabelText(/mot de passe/i), 'MotDePasse123!')
   await user.click(screen.getByRole('button', { name: /se connecter/i }))
   await screen.findByRole('heading', { name: /Bonjour/ })

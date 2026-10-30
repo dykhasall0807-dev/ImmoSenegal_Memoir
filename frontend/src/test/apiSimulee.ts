@@ -28,7 +28,12 @@ export function simulerApi(routes: Record<string, Gestionnaire>) {
     if (!gestionnaire) throw new Error(`Appel non prévu dans le test : ${cle}`)
     return gestionnaire(init)
   })
-  vi.stubGlobal('fetch', mock)
+  // Au chargement, l'application tente de restaurer la session (POST /api/auth/refresh). Sans route dédiée, la réponse
+  // par défaut est « pas de session » et l'appel n'est pas compté, pour ne pas fausser les assertions des tests.
+  const sansSession = json(401, { message: 'Session expirée. Veuillez vous reconnecter.' })
+  vi.stubGlobal('fetch', (url: string, init?: RequestInit) =>
+    url === '/api/auth/refresh' && !routes['POST /api/auth/refresh'] ? Promise.resolve(sansSession.clone()) : mock(url, init),
+  )
   return mock
 }
 
