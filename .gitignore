@@ -19,3 +19,4 @@ frontend/dist/
 
 # Fichiers générés par TypeScript
 *.tsbuildinfo
+.neon
