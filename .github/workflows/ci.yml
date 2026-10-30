@@ -126,6 +126,7 @@ jobs:
           DB_URL=jdbc:postgresql://localhost:5432/immosenegal_e2e \
           DB_USER=immosenegal DB_PASSWORD=ci_e2e_password \
           JWT_SECRET="$JWT_SECRET" \
+          CORS_ALLOWED_ORIGINS=http://localhost:4173 \
           BOOTSTRAP_ADMIN_EMAIL=admin-e2e@example.test BOOTSTRAP_ADMIN_PASSWORD="$ADMIN_PASSWORD" \
           nohup java -jar backend/target/*.jar > backend.log 2>&1 &
           for i in $(seq 1 60); do
