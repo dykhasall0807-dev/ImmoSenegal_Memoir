@@ -62,5 +62,6 @@ export async function appelApi<T>(chemin: string, { method = 'GET', body, token 
       retry ? Number(retry) : undefined,
     )
   }
+  if (reponse.status === 204) return undefined as T
   return (await reponse.json()) as T
 }

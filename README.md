@@ -14,11 +14,11 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 | Limitation des tentatives de connexion (5 échecs/email, 20/IP, 15 min → 429 + Retry-After) | **Vérifié par la CI** |
 | Renouvellement du jeton (cookie HttpOnly), déconnexion côté serveur, mot de passe oublié | À faire |
 | Annonces (backend) : publication (PROPRIETAIRE/AGENT/ADMIN), modification/suppression par le propriétaire ou un ADMIN, catalogue public, recherche filtrée + pagination + tri | **Vérifié par la CI** (51 tests backend au total, 0 échec, le 29/10/2026) |
-| Annonces : photos, liste et détail dans le frontend, carte | À faire |
+| Annonces : photos, carte | À faire |
 | Visites, offres, paiements simulés, messagerie, assistant, vérification des annonces | À faire |
-| Frontend : projet de base, accueil (recherche), catalogue provisoire, page 404 | **Vérifié par la CI** (compilation + tests) |
+| Frontend : accueil, catalogue réel (filtres, tri, pagination), détail d'une annonce, publication / modification / suppression par le propriétaire (« Mes annonces ») | **Vérifié par la CI** (compilation + 37 tests) — testé avec une API **simulée** uniquement, jamais encore de bout en bout avec le vrai backend |
 | Frontend : pages Connexion, Inscription, Tableau de bord (profil vérifié par `/api/auth/me`), navigation selon la session | Testé avec une API **simulée** (19 tests) ; **pas encore testé contre le vrai backend** |
-| Frontend : catalogue réel, détail d'un bien, carte, demande de rôle | À faire |
+| Frontend : carte, demande de rôle (un compte Client ne peut pas encore publier depuis l'interface) | À faire |
 
 Un élément n'est marqué « vérifié » que lorsque la CI (onglet « Actions » de GitHub) est verte.
 

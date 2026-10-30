@@ -7,6 +7,8 @@ import NotFound from './pages/NotFound'
 import Connexion from './pages/Connexion'
 import Inscription from './pages/Inscription'
 import Dashboard from './pages/Dashboard'
+import MesAnnonces from './pages/MesAnnonces'
+import FormulaireAnnonce from './pages/FormulaireAnnonce'
 import RequireAuth from './components/RequireAuth'
 import { AuthProvider } from './auth'
 
@@ -17,7 +19,10 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="catalogue" element={<Catalogue />} />
+          <Route path="annonces/nouvelle" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
+          <Route path="annonces/:id/modifier" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id" element={<DetailAnnonce />} />
+          <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="inscription" element={<Inscription />} />
           <Route

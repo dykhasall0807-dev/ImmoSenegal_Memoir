@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import { libelleRole, type Utilisateur } from '../types'
@@ -69,8 +69,14 @@ export default function Dashboard() {
         </div>
       </dl>
 
+      {['PROPRIETAIRE', 'AGENT', 'ADMIN'].includes(affiche.role) && (
+        <Link to="/mes-annonces" className="mt-6 inline-block rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700">
+          Gérer mes annonces
+        </Link>
+      )}
+
       <p className="mt-6 rounded-lg border border-dore-500/50 bg-amber-50 p-4 text-sm text-slate-800">
-        Les visites, offres, messages et la publication d'annonces ne sont pas encore disponibles : ils arrivent aux
+        Les visites, offres, messages et paiements ne sont pas encore disponibles : ils arrivent aux
         prochaines étapes.
       </p>
     </div>
