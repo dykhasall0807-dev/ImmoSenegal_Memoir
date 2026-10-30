@@ -23,6 +23,14 @@ async function deconnecter(page: Page) {
 
 test.describe.configure({ mode: 'serial' })
 
+// En cas d'échec, on joint le texte visible de la page et l'URL pour comprendre sans avoir les journaux complets.
+test.afterEach(async ({ page }, info) => {
+  if (info.status !== info.expectedStatus) {
+    const texte = (await page.locator('body').innerText().catch(() => '')).replace(/\s+/g, ' ').slice(0, 600)
+    console.log(`PAGE-URL: ${page.url()}\nPAGE-TEXTE: ${texte}`)
+  }
+})
+
 test('parcours complet : inscription, demande de rôle, validation admin, publication, catalogue, suppression', async ({ page, request }) => {
   expect(ADMIN_EMAIL, 'E2E_ADMIN_EMAIL doit être défini').not.toBe('')
 
