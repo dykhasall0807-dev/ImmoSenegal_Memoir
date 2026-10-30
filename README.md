@@ -16,7 +16,7 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 | Annonces (backend) : publication (PROPRIETAIRE/AGENT/ADMIN), modification/suppression par le propriétaire ou un ADMIN, catalogue public, recherche filtrée + pagination + tri | **Vérifié par la CI** (51 tests backend au total, 0 échec, le 29/10/2026) |
 | Annonces : photos, carte | À faire |
 | Visites, offres, paiements simulés, messagerie, assistant, vérification des annonces | À faire |
-| Frontend : accueil, catalogue réel (filtres, tri, pagination), détail d'une annonce, publication / modification / suppression par le propriétaire (« Mes annonces »), demande de rôle par le Client et validation par l'administrateur | **Vérifié par la CI** (compilation + 40 tests) — testé avec une API **simulée** uniquement, jamais encore de bout en bout avec le vrai backend |
+| Frontend : accueil, catalogue réel (filtres, tri, pagination), détail d'une annonce, publication / modification / suppression par le propriétaire (« Mes annonces »), demande de rôle par le Client et validation par l'administrateur | **Vérifié par la CI** (compilation + 40 tests) — 40 tests avec API simulée **et** un parcours de bout en bout (navigateur réel + vrai backend + PostgreSQL) en CI : inscription → demande de rôle → validation admin → publication → catalogue → modification → suppression |
 | Frontend : pages Connexion, Inscription, Tableau de bord (profil vérifié par `/api/auth/me`), navigation selon la session | Testé avec une API **simulée** (19 tests) ; **pas encore testé contre le vrai backend** |
 | Frontend : carte | À faire |
 
