@@ -4,6 +4,7 @@ import { useApi } from '../useApi'
 import { formatFcfa } from '../format'
 import { libelleStatut, libelleTypeBien, type Annonce } from '../types'
 import { Chargement, MessageErreur } from '../components/ListeAnnonces'
+import Galerie from '../components/Galerie'
 
 export default function DetailAnnonce() {
   const { id = '' } = useParams()
@@ -33,12 +34,7 @@ export default function DetailAnnonce() {
 
       {a && (
         <article className="mt-6">
-          <div aria-hidden className="flex h-48 items-end rounded-2xl bg-gradient-to-br from-nuit-800 to-emeraude-700 p-4 sm:h-64">
-            <span className="rounded-full bg-dore-500 px-3 py-1 text-sm font-semibold text-nuit-950">
-              {a.transaction === 'LOCATION' ? 'À louer' : 'À vendre'}
-            </span>
-          </div>
-          <p className="mt-2 text-xs text-slate-500">Les photos de l'annonce ne sont pas encore disponibles.</p>
+          <Galerie annonce={a} />
 
           <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
             <div>

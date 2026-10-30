@@ -48,6 +48,8 @@ export interface Annonce {
   proprietaire: { id: string; nomComplet: string }
   creeLe: string
   modifieLe: string
+  /** Identifiants des photos, la première sert de couverture. */
+  photos: string[]
 }
 
 export interface PagePaginee<T> {

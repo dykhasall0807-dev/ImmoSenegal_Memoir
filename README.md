@@ -15,13 +15,16 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 | Session longue : cookie HttpOnly de rafraîchissement (jeton à usage unique, rotation, détection de réutilisation), déconnexion côté serveur | **Vérifié par la CI** (62 tests backend, 0 échec ; rechargement de page vérifié en bout en bout) |
 | Mot de passe oublié | À faire |
 | Annonces (backend) : publication (PROPRIETAIRE/AGENT/ADMIN), modification/suppression par le propriétaire ou un ADMIN, catalogue public, recherche filtrée + pagination + tri | **Vérifié par la CI** (51 tests backend au total, 0 échec, le 29/10/2026) |
-| Annonces : photos, carte | À faire |
+| Photos des annonces : envoi par le propriétaire (JPEG/PNG, 5 Mo, 8 max), nettoyage des métadonnées dont le GPS, couverture dans le catalogue, galerie dans le détail | **Vérifié par la CI** (76 tests backend, 53 tests frontend, parcours de bout en bout avec une vraie image) |
+| Annonces : carte | À faire |
 | Visites, offres, paiements simulés, messagerie, assistant, vérification des annonces | À faire |
-| Frontend : accueil, catalogue réel (filtres, tri, pagination), détail d'une annonce, publication / modification / suppression par le propriétaire (« Mes annonces »), demande de rôle par le Client et validation par l'administrateur | **Vérifié par la CI** (compilation + 40 tests) — 40 tests avec API simulée **et** un parcours de bout en bout (navigateur réel + vrai backend + PostgreSQL) en CI : inscription → demande de rôle → validation admin → publication → catalogue → modification → suppression |
+| Frontend : accueil, catalogue réel (filtres, tri, pagination), détail d'une annonce, publication / modification / suppression par le propriétaire (« Mes annonces »), demande de rôle par le Client et validation par l'administrateur | **Vérifié par la CI** (compilation + 53 tests) — 40 tests avec API simulée **et** un parcours de bout en bout (navigateur réel + vrai backend + PostgreSQL) en CI : inscription → demande de rôle → validation admin → publication → catalogue → modification → suppression |
 | Frontend : pages Connexion, Inscription, Tableau de bord (profil vérifié par `/api/auth/me`), navigation selon la session | Testé avec une API **simulée** (19 tests) ; **pas encore testé contre le vrai backend** |
 | Frontend : carte | À faire |
 
 Un élément n'est marqué « vérifié » que lorsque la CI (onglet « Actions » de GitHub) est verte.
+
+**Photos :** stockées dans la base PostgreSQL (aucun disque à gérer, sauvegardées avec les données). Chaque photo est décodée puis ré-encodée à l'envoi : un fichier qui n'est pas une vraie image est refusé, les métadonnées (position GPS, appareil) sont supprimées, l'image est réduite à 1600 px. WebP et SVG sont refusés. Limite connue : pas de réorganisation des photos (la plus ancienne sert de couverture ; pour changer, supprimer et renvoyer).
 
 **Session :** le jeton d'accès (15 min) reste en mémoire du navigateur, jamais dans `localStorage`. Un cookie `HttpOnly` limité à `/api/auth` (illisible par JavaScript) permet de retrouver la session après un rechargement et de renouveler le jeton discrètement. Chaque jeton de rafraîchissement ne sert qu'une fois ; si un ancien jeton est rejoué, toutes les sessions du compte sont révoquées. Seule l'empreinte SHA-256 est stockée en base. La déconnexion révoque le jeton côté serveur.
 

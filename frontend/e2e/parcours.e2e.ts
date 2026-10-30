@@ -7,6 +7,8 @@ const suffixe = Date.now()
 const CLIENT_EMAIL = `e2e.${suffixe}@example.test`
 const CLIENT_PASSWORD = `Mdp-E2E-${suffixe}-Solide!`
 const TITRE = `Villa E2E ${suffixe}`
+// Plus petite image PNG valide (1 pixel) : suffit pour vérifier le chemin complet d'envoi, de nettoyage et d'affichage.
+const PNG_1PX = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64')
 
 async function connecter(page: Page, email: string, motDePasse: string) {
   await page.goto('/connexion')
@@ -96,12 +98,25 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   await page.getByLabel('Quartier').fill('Néma')
   await page.getByLabel('Équipements').fill('wifi, parking')
   await page.getByRole('button', { name: /publier l'annonce/i }).click()
+
+  // 5b. Photos : un faux fichier est refusé par le serveur, une vraie image est acceptée et s'affiche.
+  await expect(page.getByRole('heading', { name: "Modifier l'annonce" })).toBeVisible()
+  await page.getByLabel('Ajouter des photos').setInputFiles({ name: 'faux.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('<html>pas une image</html>') })
+  await expect(page.getByRole('alert')).toContainText('faux.jpg')
+  await page.getByLabel('Ajouter des photos').setInputFiles({ name: 'salon.png', mimeType: 'image/png', buffer: PNG_1PX })
+  const miniature = page.getByAltText('Photo 1')
+  await expect(miniature).toBeVisible()
+  await expect.poll(() => miniature.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0)
+  await page.getByRole('link', { name: 'Terminer' }).click()
   await expect(page.getByRole('link', { name: TITRE })).toBeVisible()
 
   // 6. L'annonce apparaît dans le catalogue public (sans être connecté) avec ses filtres.
   const visiteur = await page.context().browser()!.newPage({ baseURL: page.url().split('/').slice(0, 3).join('/') })
   await visiteur.goto('/catalogue?type=VILLA&transaction=VENTE')
   await expect(visiteur.getByRole('link', { name: TITRE })).toBeVisible()
+  // La photo est lisible SANS être connecté (lecture publique) : l'image est réellement chargée par le navigateur.
+  const couverture = visiteur.getByRole('article').filter({ hasText: TITRE }).getByRole('img')
+  await expect.poll(() => couverture.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0)
   await visiteur.getByRole('link', { name: TITRE }).click()
   await expect(visiteur.getByRole('heading', { level: 1, name: TITRE })).toBeVisible()
   await expect(visiteur.getByText('45 000 000 FCFA')).toBeVisible()

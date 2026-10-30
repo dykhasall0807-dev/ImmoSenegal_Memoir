@@ -40,6 +40,7 @@ describe('Publication et gestion des annonces', () => {
       'PROPRIETAIRE',
       {
         'POST /api/annonces': () => json(201, annonceTest()),
+        [`GET /api/annonces/${annonceTest().id}`]: () => json(200, annonceTest()),
         'GET /api/annonces/mes-annonces*': () => json(200, pageTest([annonceTest()])),
       },
     )
@@ -53,6 +54,11 @@ describe('Publication et gestion des annonces', () => {
     await user.type(screen.getByLabelText('Équipements'), 'wifi, parking')
     await user.click(screen.getByRole('button', { name: /publier l'annonce/i }))
 
+    // Après la publication, on arrive sur la page de l'annonce pour ajouter des photos.
+    expect(await screen.findByRole('heading', { name: "Modifier l'annonce" })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Annonce publiée')
+    expect(screen.getByLabelText('Ajouter des photos')).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: 'Terminer' }))
     await screen.findByRole('heading', { name: 'Mes annonces' })
     const appel = api.mock.calls.find(([u, i]) => u === '/api/annonces' && i?.method === 'POST')!
     const corps = JSON.parse(String(appel[1]!.body))

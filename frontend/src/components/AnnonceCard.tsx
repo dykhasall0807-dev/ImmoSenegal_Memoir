@@ -3,14 +3,23 @@ import { Link } from 'react-router-dom'
 import type { Annonce } from '../types'
 import { libelleStatut, libelleTypeBien } from '../types'
 import { formatFcfa } from '../format'
+import { urlPhoto } from './photos'
 
 export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
   const location = annonce.transaction === 'LOCATION'
   const disponible = annonce.statut === 'DISPONIBLE'
   return (
     <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div aria-hidden className="relative flex h-36 items-end bg-gradient-to-br from-nuit-800 to-emeraude-700 p-3">
-        <span className="rounded-full bg-dore-500 px-2.5 py-0.5 text-xs font-semibold text-nuit-950">
+      <div className="relative flex h-36 items-end overflow-hidden bg-gradient-to-br from-nuit-800 to-emeraude-700 p-3">
+        {annonce.photos.length > 0 && (
+          <img
+            src={urlPhoto(annonce.id, annonce.photos[0])}
+            alt={`Photo : ${annonce.titre}`}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
+        <span className="relative rounded-full bg-dore-500 px-2.5 py-0.5 text-xs font-semibold text-nuit-950">
           {location ? 'À louer' : 'À vendre'}
         </span>
         {!disponible && (

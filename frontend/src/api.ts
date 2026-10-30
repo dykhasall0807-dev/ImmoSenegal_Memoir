@@ -1,6 +1,11 @@
 // URL de l'API : vide en local (le proxy Vite redirige /api vers le backend), renseignée en production.
 const BASE = String(import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
 
+/** Adresse complète d'une ressource de l'API (utile pour <img src>). */
+export function urlApi(chemin: string): string {
+  return `${BASE}${chemin}`
+}
+
 export class ApiError extends Error {
   readonly status: number
   readonly details: Record<string, string>
@@ -35,7 +40,9 @@ function messageParDefaut(status: number): string {
 /** Appelle l'API et transforme toute erreur en ApiError avec un message lisible. */
 export async function appelApi<T>(chemin: string, { method = 'GET', body, token, cookie }: Options = {}): Promise<T> {
   const entetes: Record<string, string> = { Accept: 'application/json' }
-  if (body !== undefined) entetes['Content-Type'] = 'application/json'
+  const formulaire = typeof FormData !== 'undefined' && body instanceof FormData
+  // Pour un envoi de fichier, le navigateur fixe lui-même le Content-Type (avec la frontière multipart).
+  if (body !== undefined && !formulaire) entetes['Content-Type'] = 'application/json'
   if (token) entetes.Authorization = `Bearer ${token}`
   if (cookie) entetes['X-Requested-With'] = 'immosenegal'
 
@@ -44,7 +51,7 @@ export async function appelApi<T>(chemin: string, { method = 'GET', body, token,
     reponse = await fetch(`${BASE}${chemin}`, {
       method,
       headers: entetes,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : formulaire ? (body as FormData) : JSON.stringify(body),
       credentials: cookie ? 'include' : undefined,
     })
   } catch {

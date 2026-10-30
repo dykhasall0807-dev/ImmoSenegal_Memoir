@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import Champ from '../components/Champ'
+import GestionPhotos from '../components/GestionPhotos'
 import { libelleStatut, libelleTypeBien, type Annonce, type StatutAnnonce, type TypeBien, type TypeTransaction } from '../types'
 
 const classeSelect = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-900'
@@ -17,6 +18,8 @@ export default function FormulaireAnnonce() {
   const edition = Boolean(id)
   const { utilisateur, jeton } = useAuth()
   const navigate = useNavigate()
+  const nouvelle = (useLocation().state as { nouvelle?: boolean } | null)?.nouvelle === true
+  const [photos, setPhotos] = useState<string[]>([])
   const [initial, setInitial] = useState<Annonce | null>(null)
   const [chargement, setChargement] = useState(edition)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -27,7 +30,11 @@ export default function FormulaireAnnonce() {
     if (!id) return
     let annule = false
     appelApi<Annonce>(`/api/annonces/${id}`)
-      .then((a) => !annule && setInitial(a))
+      .then((a) => {
+        if (annule) return
+        setInitial(a)
+        setPhotos(a.photos)
+      })
       .catch((e: unknown) => !annule && setErreur(e instanceof ApiError ? e.message : 'Chargement impossible.'))
       .finally(() => !annule && setChargement(false))
     return () => {
@@ -78,12 +85,14 @@ export default function FormulaireAnnonce() {
     setErreur(null)
     setChamps({})
     try {
-      await appelApi<Annonce>(edition ? `/api/annonces/${id}` : '/api/annonces', {
+      const reponse = await appelApi<Annonce>(edition ? `/api/annonces/${id}` : '/api/annonces', {
         method: edition ? 'PUT' : 'POST',
         body: corps,
         token: jeton,
       })
-      navigate('/mes-annonces')
+      // Après une publication, on ouvre la page de l'annonce pour y ajouter des photos.
+      if (edition) navigate('/mes-annonces')
+      else navigate(`/annonces/${reponse.id}/modifier`, { replace: true, state: { nouvelle: true } })
     } catch (err) {
       if (err instanceof ApiError) {
         setErreur(err.message)
@@ -97,6 +106,11 @@ export default function FormulaireAnnonce() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="text-2xl font-bold">{edition ? "Modifier l'annonce" : 'Publier une annonce'}</h1>
+      {nouvelle && (
+        <p role="status" className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
+          Annonce publiée. Ajoutez maintenant des photos, puis cliquez sur « Terminer ».
+        </p>
+      )}
       <form onSubmit={soumettre} noValidate aria-label="Formulaire d'annonce" className="mt-6 space-y-4 rounded-2xl bg-white p-5 shadow">
         {erreur && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
         <Champ id="titre" name="titre" libelle="Titre" required maxLength={150} defaultValue={a?.titre} erreur={champs.titre} />
@@ -144,9 +158,12 @@ export default function FormulaireAnnonce() {
           <button type="submit" disabled={envoi} className="rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700 disabled:opacity-60">
             {envoi ? 'Envoi…' : edition ? 'Enregistrer' : "Publier l'annonce"}
           </button>
-          <Link to="/mes-annonces" className="rounded-lg border border-slate-300 px-4 py-2.5 font-medium">Annuler</Link>
+          <Link to="/mes-annonces" className="rounded-lg border border-slate-300 px-4 py-2.5 font-medium">
+            {nouvelle ? 'Terminer' : 'Annuler'}
+          </Link>
         </div>
       </form>
+      {edition && id && <GestionPhotos annonceId={id} photos={photos} onChange={setPhotos} />}
     </div>
   )
 }

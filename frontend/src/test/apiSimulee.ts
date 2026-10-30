@@ -60,6 +60,7 @@ export function annonceTest(surcharge: Partial<Annonce> = {}): Annonce {
     proprietaire: { id: 'p1', nomComplet: 'Awa Diallo' },
     creeLe: '2026-10-28T10:00:00Z',
     modifieLe: '2026-10-28T10:00:00Z',
+    photos: [],
     ...surcharge,
   }
 }
