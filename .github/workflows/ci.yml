@@ -81,3 +81,74 @@ jobs:
       - name: Lancer les tests
         working-directory: frontend
         run: npm test
+
+  e2e:
+    name: Bout en bout (navigateur + vrai backend + PostgreSQL)
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: immosenegal_e2e
+          POSTGRES_USER: immosenegal
+          POSTGRES_PASSWORD: ci_e2e_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U immosenegal -d immosenegal_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Construire le backend
+        working-directory: backend
+        run: mvn -B -DskipTests package
+      - name: Démarrer le backend (secrets jetables générés pour ce run)
+        run: |
+          # Secrets aléatoires, valables uniquement pour ce job : rien n'est écrit dans le dépôt.
+          JWT_SECRET="$(openssl rand -hex 48)"
+          ADMIN_PASSWORD="$(openssl rand -hex 16)"
+          echo "::add-mask::$ADMIN_PASSWORD"
+          echo "E2E_ADMIN_EMAIL=admin-e2e@example.test" >> "$GITHUB_ENV"
+          echo "E2E_ADMIN_PASSWORD=$ADMIN_PASSWORD" >> "$GITHUB_ENV"
+          DB_URL=jdbc:postgresql://localhost:5432/immosenegal_e2e \
+          DB_USER=immosenegal DB_PASSWORD=ci_e2e_password \
+          JWT_SECRET="$JWT_SECRET" \
+          BOOTSTRAP_ADMIN_EMAIL=admin-e2e@example.test BOOTSTRAP_ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+          nohup java -jar backend/target/*.jar > backend.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fs http://localhost:8080/api/health > /dev/null; then echo "Backend prêt"; exit 0; fi
+            sleep 2
+          done
+          echo "Le backend n'a pas démarré :"; tail -n 50 backend.log; exit 1
+      - name: Installer et servir le frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+          nohup npx vite preview --port 4173 --strictPort > ../preview.log 2>&1 &
+          for i in $(seq 1 30); do curl -fs http://localhost:4173/ > /dev/null && exit 0; sleep 1; done
+          cat ../preview.log; exit 1
+      - name: Installer le navigateur
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: Lancer le parcours de bout en bout
+        working-directory: frontend
+        run: npm run test:e2e
+      - name: Résumé (visible dans le run)
+        if: always()
+        run: |
+          echo "::notice title=E2E::job termine, statut=${{ job.status }}"
+          tail -n 30 backend.log | sed -E 's/(password|token)[^ ]*/[masque]/Ig' || true
