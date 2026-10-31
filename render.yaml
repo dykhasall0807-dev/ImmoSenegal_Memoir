@@ -7,7 +7,7 @@ services:
     region: virginia                 # proche de la base Neon (AWS US East 1) : échanges rapides
     rootDir: backend
     dockerfilePath: ./Dockerfile
-    healthCheckPath: /api/health
+    healthCheckPath: /api/ping       # sans accès à la base : n'empêche pas Neon de se mettre en veille
     # Déploiement automatique à chaque commit, uniquement si les vérifications GitHub (CI) sont au vert.
     autoDeployTrigger: checksPass
     envVars:

@@ -43,7 +43,7 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/health", "/api/ping").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login",
                     "/api/auth/refresh", "/api/auth/logout").permitAll()
                 // Catalogue public en lecture ; « mes annonces » exige une session ; publier exige un rôle autorisé.
