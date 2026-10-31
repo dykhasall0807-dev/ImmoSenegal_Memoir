@@ -19,7 +19,7 @@ describe('Accueil', () => {
   it("affiche le formulaire de recherche et les annonces récentes venant de l'API", async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest({ titre: 'Villa des Pins' })])) })
     afficher()
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/Sénégal/)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Rentrez enfin chez vous.')
     expect(screen.getByRole('form', { name: /recherche de logement/i })).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: 'Villa des Pins' })).toHaveAttribute('href', '/annonces/a1111111-1111-1111-1111-111111111111')
   })
@@ -27,7 +27,7 @@ describe('Accueil', () => {
   it("n'affiche aucune annonce fictive quand la base est vide", async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
-    expect(await screen.findByText("Aucune annonce n'est encore publiée.")).toBeInTheDocument()
+    expect(await screen.findByText(/Aucune annonce n'est encore publiée\./)).toBeInTheDocument()
     expect(screen.queryByText('Démonstration')).not.toBeInTheDocument()
   })
 

@@ -16,7 +16,7 @@ async function connecter(page: Page, email: string, motDePasse: string) {
   await page.getByLabel('Mot de passe').fill(motDePasse)
   await page.getByRole('button', { name: /se connecter/i }).click()
   // Après connexion, le site peut renvoyer vers la dernière page demandée : on passe par « Mon espace ».
-  await page.getByRole('link', { name: 'Mon espace' }).click()
+  await page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('link', { name: 'Mon espace' }).click()
   await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
 }
 
@@ -64,7 +64,7 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   // 2b. Un Client ne peut pas publier (message clair dans l'interface ; le serveur refuserait aussi).
   await page.goto('/annonces/nouvelle')
   await expect(page.getByRole('alert')).toContainText('compte Client')
-  await page.getByRole('link', { name: 'Mon espace' }).click()
+  await page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('link', { name: 'Mon espace' }).click()
   await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
 
   // 3. Demande du rôle Propriétaire.

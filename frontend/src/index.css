@@ -12,7 +12,27 @@
   --color-emeraude-50: #ecfdf5;
   --color-dore-500: #f5b942;
   --color-dore-600: #d99a1b;
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Titres de la page d'accueil : un serif chaleureux, hébergé avec le site (aucun appel à un service externe). */
+  --font-titre: "Fraunces Variable", Georgia, "Times New Roman", serif;
+}
+
+/* Ciel de la page d'accueil : nuit en haut, lueur dorée à l'horizon. */
+.ciel-crepuscule {
+  background: linear-gradient(180deg, #07142a 0%, #0b1f3a 26%, #12305a 50%, #4a4570 74%, #c27a4a 92%, #f5b942 100%);
+}
+
+/* Les fenêtres de l'illustration s'allument une à une ; sans animation si l'utilisateur le demande. */
+@keyframes allumer {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fenetre {
+  opacity: 0;
+  animation: allumer 1.2s ease-out var(--delai, 0s) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fenetre { opacity: 1; animation: none; }
 }
 
 html { scroll-behavior: smooth; }
