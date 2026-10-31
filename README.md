@@ -28,6 +28,8 @@ Un élément n'est marqué « vérifié » que lorsque la CI (onglet « Actions 
 
 **Session :** le jeton d'accès (15 min) reste en mémoire du navigateur, jamais dans `localStorage`. Un cookie `HttpOnly` limité à `/api/auth` (illisible par JavaScript) permet de retrouver la session après un rechargement et de renouveler le jeton discrètement. Chaque jeton de rafraîchissement ne sert qu'une fois ; si un ancien jeton est rejoué, toutes les sessions du compte sont révoquées. Seule l'empreinte SHA-256 est stockée en base. La déconnexion révoque le jeton côté serveur.
 
+**Hébergement en ligne (Neon + Render + Vercel) :** la base est sur Neon, le serveur sur Render (`render.yaml`, redéployé à chaque commit dont les vérifications sont vertes), le site sur Vercel (`frontend/vercel.json`). Vercel relaie les appels `/api` vers Render : le navigateur ne parle qu'à une seule adresse, donc le cookie de session reste « même site ». Limites de l'offre gratuite : le serveur Render s'endort après 15 minutes sans visite (premier chargement lent, un message d'attente s'affiche) ; derrière Vercel, la limitation de connexion par adresse IP voit l'IP du relais, donc le compteur par IP est partagé entre tous les visiteurs (le compteur par email reste exact).
+
 **À régler au déploiement :** `REFRESH_COOKIE_SECURE=true` (https) et `CORS_ALLOWED_ORIGINS` = adresse exacte du frontend. Si le frontend et l'API sont sur deux sites différents (ex. Vercel + Render), mettre `REFRESH_COOKIE_SAMESITE=None`.
 
 ## Lancer toute l'application (méthode recommandée, une seule commande)
