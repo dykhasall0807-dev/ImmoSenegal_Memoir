@@ -28,7 +28,7 @@ export default function Inscription() {
     if (nomComplet.trim() === '') e.nomComplet = 'Indiquez votre nom complet.'
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) e.email = 'Adresse email invalide.'
     if (telephone.trim() !== '' && !/^\+?[0-9 ]{8,15}$/.test(telephone.trim())) e.telephone = 'Numéro de téléphone invalide.'
-    if (password.length < 12) e.password = 'Le mot de passe doit contenir au moins 12 caractères.'
+    if (password.length < 8) e.password = 'Le mot de passe doit contenir au moins 8 caractères.'
     if (confirmation !== password) e.confirmation = 'Les deux mots de passe ne correspondent pas.'
     return e
   }
@@ -84,7 +84,7 @@ export default function Inscription() {
         <Champ id="telephone" libelle="Téléphone (facultatif)" type="tel" autoComplete="tel" value={telephone}
           onChange={(e) => setTelephone(e.target.value)} erreur={erreurs.telephone} aide="Ex. +221 77 123 45 67" />
         <Champ id="password" libelle="Mot de passe" type="password" autoComplete="new-password" required value={password}
-          onChange={(e) => setPassword(e.target.value)} erreur={erreurs.password} aide="12 caractères minimum." />
+          onChange={(e) => setPassword(e.target.value)} erreur={erreurs.password} aide="8 caractères minimum." />
         <Champ id="confirmation" libelle="Confirmer le mot de passe" type="password" autoComplete="new-password" required
           value={confirmation} onChange={(e) => setConfirmation(e.target.value)} erreur={erreurs.confirmation} />
         <button

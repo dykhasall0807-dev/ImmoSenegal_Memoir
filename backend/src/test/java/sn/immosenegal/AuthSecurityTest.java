@@ -49,11 +49,18 @@ class AuthSecurityTest extends AbstractApiTest {
     }
 
     @Test
-    void motDePasseTropCourtEstRefuse() throws Exception {
+    void motDePasseDeSeptCaracteresEstRefuse() throws Exception {
         mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
-                .content(corps(Map.of("email", emailUnique(), "password", "court", "nomComplet", "Test"))))
+                .content(corps(Map.of("email", emailUnique(), "password", "Abcd123", "nomComplet", "Test"))))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.details.password").exists());
+    }
+
+    @Test
+    void motDePasseDeHuitCaracteresEstAccepte() throws Exception {
+        mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of("email", emailUnique(), "password", "Abcd1234", "nomComplet", "Test"))))
+            .andExpect(status().isCreated());
     }
 
     @Test

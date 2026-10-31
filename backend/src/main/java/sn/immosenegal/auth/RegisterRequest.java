@@ -11,7 +11,7 @@ public record RegisterRequest(
     @NotBlank @Email @Size(max = 254)
     String email,
 
-    @NotBlank @Size(min = 12, max = 72, message = "Le mot de passe doit contenir entre 12 et 72 caractères.")
+    @NotBlank @Size(min = 8, max = 72, message = "Le mot de passe doit contenir entre 8 et 72 caractères.")
     @Schema(accessMode = Schema.AccessMode.WRITE_ONLY)
     String password,
 

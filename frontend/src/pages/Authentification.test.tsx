@@ -143,17 +143,17 @@ describe('Inscription', () => {
     expect(api).not.toHaveBeenCalled()
   })
 
-  it('refuse un mot de passe de moins de 12 caractères', async () => {
+  it('refuse un mot de passe de moins de 8 caractères (7 caractères)', async () => {
     const api = simulerApi({})
     const user = userEvent.setup()
     afficher('/inscription')
     await user.type(screen.getByLabelText('Nom complet'), 'Khady')
     await user.type(screen.getByLabelText('Adresse email'), 'khady@example.test')
-    await user.type(screen.getByLabelText('Mot de passe'), 'court')
-    await user.type(screen.getByLabelText('Confirmer le mot de passe'), 'court')
+    await user.type(screen.getByLabelText('Mot de passe'), 'Abcd123')
+    await user.type(screen.getByLabelText('Confirmer le mot de passe'), 'Abcd123')
     await user.click(screen.getByRole('button', { name: /créer mon compte/i }))
 
-    expect(await screen.findByText(/au moins 12 caractères/i)).toBeInTheDocument()
+    expect(await screen.findByText(/au moins 8 caractères/i)).toBeInTheDocument()
     expect(api).not.toHaveBeenCalled()
   })
 
