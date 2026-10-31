@@ -4,6 +4,7 @@ services:
     name: immosenegal-api
     runtime: docker
     plan: free
+    region: virginia                 # proche de la base Neon (AWS US East 1) : échanges rapides
     rootDir: backend
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
